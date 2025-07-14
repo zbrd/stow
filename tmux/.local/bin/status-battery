@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+
+BAT=${BAT:-BAT0}
+PSDIR=/sys/class/power_supply
+capacity=
+status=
+format='%s%d%%'
+
+if f="$PSDIR/$BAT/capacity" && [ -r "$f" ]; then
+    capacity=$(cat "$f")
+fi
+
+if f="$PSDIR/$BAT/status" && [ -r "$f" ]; then
+    status=$(cat "$f")
+fi
+
+case "$status" in
+    Discharging)
+        status='↓'
+        ;;
+    Charging)
+        status='↑'
+        ;;
+    *)
+        status='='
+esac
+
+if [ "$1" ]; then
+    format="$1"
+fi
+
+# shellcheck disable=SC2059
+printf "$format" "${status}" "${capacity}"

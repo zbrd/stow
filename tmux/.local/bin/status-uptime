@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+if [ -r /proc/uptime ]; then
+    read -r u _ < /proc/uptime
+    date -ud "@$u" '+%-H.%M'
+fi

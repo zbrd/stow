@@ -1,0 +1,62 @@
+# vim: ft=sh
+# shellcheck shell=bash
+
+# jj/git prompt command
+#
+# For jj, uses the script from jj's wiki:
+# https://github.com/jj-vcs/jj/wiki/Shell-Prompt
+#
+# For git, uses the "git-prompt.sh" contrib script:
+# https://github.com/git/git/blob/master/contrib/completion/git-prompt.sh
+#
+# ---
+#
+# 1. Download this scirpt, save it as ~/.vcs_prompt
+# 2. Download the git-prompt.sh script, save it as ~/.git_prompt
+# 3. In .bashrc, add:
+#
+# ```sh
+# . ~/.vcs_prompt
+# PROMPT_COMMAND=__vcs_prompt
+# ```
+#
+# Dedicated to the Public Domain under the Unlicense:
+# https://unlicense.org/UNLICENSE
+
+if [ -f ~/.git_prompt ]; then
+    # shellcheck source=/dev/null
+    . ~/.git_prompt
+fi
+
+# echo "jj" or "git" if either is found in $PWD or its parents
+__pwd_in_vcs() {
+    # using the shell is much faster than
+    # `git rev-parse --git-dir` or `jj root`
+    local D="/$PWD"
+    while test -n "$D" ; do
+        test -e "$D/.jj" && { echo jj ; return; }
+        test -e "$D/.git" && { echo git ; return; }
+        D="${D%/*}"
+    done
+}
+
+# Print Git or jj repository information
+__vcs_prompt() {
+    local jjgit
+
+    jjgit="$(__pwd_in_vcs)"  # results in "jj", "git" or ""
+
+    if test "$jjgit" = jj ; then
+        # --ignore-working-copy: avoid inspecting $PWD and concurrent
+        # snapshotting which could create divergent commits
+        jj --ignore-working-copy --no-pager log --no-graph --color=always -r @ -T \
+           ' "jj[@ " ++ concat( separate(" ", format_short_change_id_with_hidden_and_divergent_info(self), format_short_commit_id(commit_id),
+                           bookmarks, if(conflict, label("conflict", "conflict")) ) ) ++ "]\n" ' 2>/dev/null
+    elif test "$jjgit" = git ; then
+        # __git_ps1 *sets* the PS1 var, so we save and restore later
+        local pps1=$PS1
+        __git_ps1 'git[' ']' '%s'
+        echo "${PS1@P}"
+        PS1=$pps1
+    fi
+}

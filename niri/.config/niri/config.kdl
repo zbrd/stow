@@ -1,0 +1,98 @@
+spawn-at-startup "foot"
+prefer-no-csd
+
+input {
+    touchpad {
+        tap
+        natural-scroll
+    }
+}
+
+layout {
+    gaps 4
+    background-color "#000000"
+
+    preset-column-widths {
+        proportion 0.5
+        proportion 1.0
+    }
+
+    default-column-width { proportion 1.0; }
+
+    focus-ring {
+        width 1
+    }
+
+    border {
+        off
+    }
+}
+
+animations {
+    slowdown 0.5
+}
+
+window-rule {
+    match title="Firefox"
+    draw-border-with-background false
+    focus-ring { width 2; }
+}
+
+binds {
+    Mod+Shift+Slash {
+        show-hotkey-overlay
+    }
+
+    Mod+Return hotkey-overlay-title="Terminal" {
+        spawn "foot"
+    }
+
+    Mod+B hotkey-overlay-title="Browser" {
+        spawn "firefox"
+    }
+
+    Mod+O repeat=false { toggle-overview; }
+
+    Mod+Q repeat=false { close-window; }
+
+    Mod+Left  { focus-column-left; }
+    Mod+Down  { focus-window-down; }
+    Mod+Up    { focus-window-up; }
+    Mod+Right { focus-column-right; }
+    Mod+H     { focus-column-left; }
+    Mod+J     { focus-window-down; }
+    Mod+K     { focus-window-up; }
+    Mod+L     { focus-column-right; }
+
+    Mod+Ctrl+Left  { move-column-left; }
+    Mod+Ctrl+Down  { move-window-down; }
+    Mod+Ctrl+Up    { move-window-up; }
+    Mod+Ctrl+Right { move-column-right; }
+    Mod+Ctrl+H     { move-column-left; }
+    Mod+Ctrl+J     { move-window-down; }
+    Mod+Ctrl+K     { move-window-up; }
+    Mod+Ctrl+L     { move-column-right; }
+
+    Mod+U { focus-workspace-down; }
+    Mod+I { focus-workspace-up; }
+    Mod+Ctrl+U { move-column-to-workspace-down; }
+    Mod+Ctrl+I { move-column-to-workspace-up; }
+
+    Mod+R       { switch-preset-column-width; }
+    Mod+Shift+R { switch-preset-column-width; }
+    Mod+F       { maximize-column; }
+    Mod+Shift+F { fullscreen-window; }
+    Mod+Ctrl+F  { expand-column-to-available-width; }
+
+    Mod+BracketLeft { consume-or-expel-window-left; }
+    Mod+BracketRight { consume-or-expel-window-right; }
+
+    Mod+C { center-column; }
+
+    Mod+V { toggle-window-floating; }
+    Mod+Shift+V {
+        switch-focus-between-floating-and-tiling
+    }
+
+    Mod+Shift+E { quit; }
+}

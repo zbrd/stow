@@ -1,0 +1,91 @@
+# shellcheck shell=bash
+
+# Set a fancy prompt (non-color, unless we know we "want" color)
+case "$TERM" in
+    xterm-color|*-256color) PROMPT_COLORS=yes;;
+esac
+
+if [ -x /usr/bin/tput ] && tput setaf 1 &>/dev/null; then
+    # We have color support; assume it's compliant with Ecma-48
+    # (ISO/IEC-6429). (Lack of such support is extremely rare, and
+    # such a case would tend to support setf rather than setaf.)
+    PROMPT_COLORS=yes
+else
+    PROMPT_COLORS=
+fi
+
+# echo "jj" or "git" if either is found in $PWD or its parents
+__pwd_in_vcs() {
+    # using the shell is much faster than
+    # `git rev-parse --git-dir` or `jj root`
+    local D="/$PWD"
+    while test -n "$D" ; do
+        test -e "$D/.jj" && { echo jj ; return; }
+        test -e "$D/.git" && { echo git ; return; }
+        D="${D%/*}"
+    done
+}
+
+__user_prompt() {
+    local last_status=$?
+
+    local cl_pwd cl_sym cl_vcs cl_time cl_reset
+    local prefix vcsprefix
+    local prompt_sym='$'
+
+    if [ "$PROMPT_COLORS" = yes ]; then
+        cl_pwd='\[\e[1;34m\]'
+        cl_sym='\[\e[00m\]'
+        cl_vcs='\[\e[2;37m\]'
+        cl_time='\[\e[2;34m\]'
+        cl_reset='\[\e[00m\]'
+    fi
+
+    if [ "$UID" = 0 ]; then
+        prompt_sym='#'
+    fi
+
+    # Set PS1 to simple prompt symbol
+    PS1="${cl_sym}${prompt_sym}${cl_reset} "
+
+    # If this is an xterm set default title to 'bash'
+    case "$TERM" in
+    xterm*|rxvt*|tmux*)
+        PS1="\[\e]0;bash\a\]$PS1"
+        ;;
+    *)
+        ;;
+    esac
+
+    # Set cursor (1=blinking)
+    PS1="\[\e[1 q\]$PS1"
+    PS2='. '
+
+    # 1. PWD
+    prefix="${cl_pwd}\w${cl_reset}"
+
+    # 2. VCS
+    vcsprefix=$(__pwd_in_vcs)
+    vcsprefix=${vcsprefix:+ ${cl_vcs}${vcsprefix}${cl_reset}}
+    prefix="${prefix}${vcsprefix}"
+
+    # 3. time
+    prefix="${prefix}${cl_time}$(date +' %H:%M:%S')${cl_reset}"
+
+    # 4. last status
+    if [ "${last_status}" != 0 ]; then
+        prefix=${prefix}'\[\e[31m\]'" ${last_status}${cl_reset}"
+    fi
+
+    # Print the prefix
+    printf '%s' "${prefix:+${prefix@P}$'\n'}"
+
+    # Refresh tmux status line after every command
+    if [ "$TMUX" ] && command -v tmux &>/dev/null; then
+        tmux refresh-client -S &>/dev/null
+    fi
+}
+
+PROMPT_COMMAND='__user_prompt'
+
+# vim: ft=sh

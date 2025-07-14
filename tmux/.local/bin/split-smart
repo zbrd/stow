@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+# smartly add new pane to current window
+
+tm() {
+    tmux "$@"
+}
+
+dp() {
+    tm display -p "$@" 2>/dev/null
+}
+
+get() {
+    [ "$1" ] && dp "#{$1}"
+}
+
+splitw() {
+    tm splitw \
+        -c '#{pane_current_path}' \
+        -l "${OTHER_WIDTH:-50}" \
+        "$@"
+}
+
+splitw-h() {
+    splitw -h "$@"
+}
+
+splitw-v() {
+    splitw -v "$@"
+}
+
+splitw-br() {
+    splitw-v -t '{bottom-right}' "$@"
+    tm select-layout main-vertical
+}
+
+PANES=$(get window_panes)
+OTHER_WIDTH=$(get other-pane-width)
+MAX_HEIGHT=15
+
+case "$PANES" in
+    1)
+        # add pane to the right
+        splitw-h "$@"
+        ;;
+    2)
+        # add pane to the bottom-right
+        splitw-br "$@"
+        ;;
+    *)
+        # do we have space?
+        mlines=$(( PANES * MAX_HEIGHT ))
+        clines=$(( $(get client_height) - 1 ))
+        if [ "$clines" -ge "$mlines" ]; then
+            # add pane to bottom-right
+            splitw-br "$@"
+        else
+            # new window
+            tm neww "$@"
+        fi
+        ;;
+esac

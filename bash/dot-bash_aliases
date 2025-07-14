@@ -1,0 +1,24 @@
+# Bash aliases
+
+# default args
+alias grep='grep --color=auto'
+alias ls='ls -h --color=auto --group-directories-first'
+alias tree='tree -Cv --dirsfirst'
+
+# human
+alias df='df -h'
+alias du='du -h'
+
+# ls
+alias ll='ls -l'
+alias la='ls -a'
+alias lla='ls -la'
+alias lal=lla
+
+# safety first
+alias cp='cp -i'
+alias mv='mv -i'
+alias rm='rm -i'
+
+# one-letters
+alias L=less

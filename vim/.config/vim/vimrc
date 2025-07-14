@@ -1,0 +1,62 @@
+set nocompatible
+filetype off
+
+syntax on
+filetype plugin indent on
+
+" <space> as leader key
+nnoremap <SPACE> <Nop>
+let mapleader=" "
+
+set encoding=utf-8
+set laststatus=2
+set list
+set listchars=tab:>\ ,trail:.,nbsp:_
+set number
+set numberwidth=5
+set relativenumber
+set ruler
+set showmode
+set showcmd
+set signcolumn=yes
+set ttyfast
+
+" Whitespace
+set wrap
+set textwidth=70
+set formatoptions=tcqrn1
+set shiftwidth=4
+set softtabstop=4
+set expandtab
+set shiftround
+
+" Cursor
+set scrolloff=1024
+set backspace=indent,eol,start
+set matchpairs+=<:>
+
+" Searching
+set hlsearch
+set incsearch
+set ignorecase
+set smartcase
+set showmatch
+
+" Keymaps
+map <leader><space> :noh<cr>
+nor <leader>v V
+
+" Color
+colorscheme slate
+set colorcolumn=+1
+
+augroup rcStartup
+    au!
+    au VimEnter,ColorScheme * {
+        hi ColorColumn ctermfg=0 ctermbg=7
+        hi LineNr cterm=bold ctermfg=15 ctermbg=NONE
+        hi LineNrAbove ctermfg=7 ctermbg=NONE
+        hi LineNrBelow ctermfg=7 ctermbg=NONE
+        hi SignColumn ctermbg=NONE
+    }
+augroup end
